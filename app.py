@@ -185,7 +185,7 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
                                                                                                        "fontSize": "1.2em"})
          return mensagem, 'Error Type', 'Error Type', 'Error Type', 'Error Type'
       
-      if frac_1 + frac_2 + frac_3 <= 1 and (frac_1 + frac_2 + frac_3)> 0:          
+      if frac_1 + frac_2 + frac_3 == 1:          
          names = [name1, name2, name3]
          X = [frac_1, frac_2, frac_3]
 
@@ -262,7 +262,7 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
          return conteudo, dict_des, dict_comp, temperature, temp_unit
       
       else:
-         mensagem = html.P(children = 'An error occurred, the sum of the mole fractions is equal 0 or greater than 1!', style={'color': 'red',
+         mensagem = html.P(children = 'An error occurred: the total mole fraction must equal 1.', style={'color': 'red',
                                                                                                        'fontWeight': 'bold',
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})
@@ -365,7 +365,7 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
       return mensagem
 
    elif des_tabel == 'Error Sum':
-      mensagem = html.P(children = 'An error occurred, the sum of the mole fractions is equal 0 or greater than 1!', style={'color': 'red',
+      mensagem = html.P(children = 'An error occurred: the total mole fraction must equal 1.', style={'color': 'red',
                                                                                                        'fontWeight': 'bold',
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})

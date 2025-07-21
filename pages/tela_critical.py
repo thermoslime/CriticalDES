@@ -58,8 +58,7 @@ layout = dbc.Container([
 
             html.Div(children= [
                 html.Br(),
-                html.P('Type of system:', style={'textAlign': 'left',  "fontSize": "1.5em",  'display': 'inline-block'}),
-                dcc.RadioItems(['Ternary', 'Binary'], value = 'Binary', id = 'system_type', persistence= True, style={ 'display': 'inline-block', "fontSize": "1.5em", 'width': '20%'}, labelStyle={'display': 'inline-block', 'marginRight': '20px', 'marginLeft': '10px'}),
+                html.P('System Composition:', style={'textAlign': 'left',  "fontSize": "1.5em",  'display': 'inline-block'}),
             ]),
 
 
