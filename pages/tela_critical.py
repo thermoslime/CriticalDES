@@ -73,7 +73,7 @@ layout = dbc.Container([
                         html.Td(html.P('Component 1', style={'width': '100%', 'textAlign': 'left',  "fontSize": "1.2em"})),
                         
                         html.Td([
-                            dcc.Dropdown(id='Nome_1', options= opcoes, value= opcoes[0], 
+                            dcc.Dropdown(id='Nome_1', options= opcoes, value= opcoes[1], 
                                          multi=False, clearable=False, disabled= False, persistence = True, 
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),

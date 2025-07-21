@@ -49,7 +49,6 @@ grafico_vazio =  {'data': [], 'layout': {
     'title': 'Clique no botão para gerar o gráfico'
 }}
 
-
 ############################################
 
 # Inicializando o aplicativo
@@ -97,7 +96,6 @@ app.layout = dbc.Container([
     dcc.Store(id = 'critical_des',  storage_type = 'session'),
     dcc.Store(id = 'critical_componentes',  storage_type = 'session'),
 ],fluid=True)
-
 
 
 ##################### CALLBACKS PRINCIPAL #####################
@@ -191,10 +189,17 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
 
          df_comp, df_des = PropriedadesDes(names, X)
 
-         dict_comp = df_comp.to_dict('records') # list of dicts
-         dict_des = df_des.to_dict('records') # list of dicts
+         # Se houver 2 ou 3 componentes:
+         if df_comp['Abr.'].value_counts()['/'] <= 1:
 
+            dict_comp = df_comp.to_dict('records') # list of dicts
+            dict_des = df_des.to_dict('records') # list of dicts
+         
+         else:
+            dict_comp = df_comp.to_dict('records') # list of dicts
+            dict_des = df_comp[df_comp['Abr.'] != '/'].to_dict('records') # list of dicts
          ## Preparando a mensagem da tela
+         
          conteudo = html.Div([ 
 
             html.Hr(),
@@ -203,7 +208,7 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
             html.P(children = 'The critical properties of the components are:', style={'textAlign': 'left', "fontSize": "1.2em"}),
 
             dash_table.DataTable(
-               data = round(pd.DataFrame(df_comp), 4).to_dict('records'), #List of dict
+               data = round(pd.DataFrame(dict_comp), 4).to_dict('records'), #List of dict
                columns = [
                   {"name": i, 
                   "id": i, 
@@ -224,14 +229,14 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
             ),
 
             html.Br(),
-            html.P(children = 'The critical properties of the components DES is:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+            html.P(children = 'The critical properties of DES is:', style={'textAlign': 'left', "fontSize": "1.2em"}),
 
             dash_table.DataTable(
-               data = round(pd.DataFrame(df_des), 4).to_dict('records'), #List of dict
+               data = round(pd.DataFrame(dict_des), 4).to_dict('records'), #List of dict
                columns = [
                   {"name": i, 
                   "id": i, 
-                  } for i in df_des.columns],
+                  } for i in pd.DataFrame(dict_des).columns],
                
                style_cell={
                   'fontSize': '18px',
@@ -291,6 +296,18 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
       df_des = pd.DataFrame(des_tabel)
       df_comp = pd.DataFrame(comp_tabel)
 
+
+      # Se houver 2 ou 3 componentes:
+      if df_comp['Abr.'].value_counts()['/'] <= 1:
+
+         dict_comp = df_comp.to_dict('records') # list of dicts
+         dict_des = df_des.to_dict('records') # list of dicts
+      
+      else:
+         dict_comp = df_comp.to_dict('records') # list of dicts
+         dict_des = df_comp[df_comp['Abr.'] != '/'].to_dict('records') # list of dicts
+
+
       conteudo = html.Div([ 
 
          html.Hr(),
@@ -299,7 +316,7 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
          html.P(children = 'The critical properties of the components are:', style={'textAlign': 'left', "fontSize": "1.2em"}),
 
          dash_table.DataTable(
-            data = round(pd.DataFrame(comp_tabel), 4).to_dict('records'), #List of dict
+            data = round(pd.DataFrame(dict_comp), 4).to_dict('records'), #List of dict
             columns = [
                {"name": i, 
                 "id": i, 
@@ -320,14 +337,14 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
          ),
 
          html.Br(),
-         html.P(children = 'The critical properties of the components DES is:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+         html.P(children = 'The critical properties of DES is:', style={'textAlign': 'left', "fontSize": "1.2em"}),
 
          dash_table.DataTable(
-            data = round(pd.DataFrame(des_tabel), 4).to_dict('records'), #List of dict
+            data = round(pd.DataFrame(dict_des), 4).to_dict('records'), #List of dict
             columns = [
                {"name": i, 
                 "id": i, 
-               } for i in df_des.columns],
+               } for i in pd.DataFrame(dict_des).columns],
             
             style_cell={
                'fontSize': '18px',
