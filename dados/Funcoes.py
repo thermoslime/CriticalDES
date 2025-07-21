@@ -5,8 +5,8 @@ import numpy as np
 
 def CriarArquivo():
 
-    df_comp = pd.read_excel(r'dados\Composicoes.xlsx')
-    df_prop = pd.read_excel(r'dados\Propriedades.xlsx')
+    df_comp = pd.read_excel(r'Composicoes.xlsx')
+    df_prop = pd.read_excel(r'Propriedades.xlsx')
 
     grupos = df_comp.columns[1:]
 
@@ -92,7 +92,7 @@ def CriarArquivo():
     df_final.head()
 
     # Correto
-    df_final.to_excel(r"dados\Valores.xlsx", index=False)
+    df_final.to_excel(r"Valores.xlsx", index=False)
 
 
 def Matriz_Vcnm(Vc):
@@ -142,7 +142,7 @@ def PropriedadesDes(names, X):
     X = np.array(X)
 
     # Acessando o Dataframe
-    df = pd.read_excel(r'dados\Valores.xlsx')
+    df = pd.read_excel(r'Valores.xlsx')
 
     # Coloca a coluna 'Abr.' como indice e filtra os valores, depois reseta o indice da matriz filtrada
     df_filtrada = df.set_index('Abr.').loc[names].reset_index()
