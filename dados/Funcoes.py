@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
+import os
 
-
+caminho_base = os.path.dirname(__file__)  # caminho da pasta 'dados'
 
 def CriarArquivo():
 
-    df_comp = pd.read_excel(r'Composicoes.xlsx')
-    df_prop = pd.read_excel(r'Propriedades.xlsx')
+    df_comp = pd.read_excel(os.path.join(caminho_base, 'Composicoes.xlsx'))
+    df_prop = pd.read_excel(os.path.join(caminho_base, 'Propriedades.xlsx'))
 
     grupos = df_comp.columns[1:]
 
@@ -92,7 +93,7 @@ def CriarArquivo():
     df_final.head()
 
     # Correto
-    df_final.to_excel(r"Valores.xlsx", index=False)
+    df_final.to_excel(os.path.join(caminho_base, 'Valores.xlsx'), index=False)
 
 
 def Matriz_Vcnm(Vc):
@@ -132,7 +133,7 @@ def Matriz_Tcm(Tc):
     return matriz
 
 def Get_components():
-    df = pd.read_excel(r'Valores.xlsx')
+    df = pd.read_excel(os.path.join(caminho_base, 'Valores.xlsx'))
     return df['Abr.'].unique()
 
 
@@ -142,7 +143,7 @@ def PropriedadesDes(names, X):
     X = np.array(X)
 
     # Acessando o Dataframe
-    df = pd.read_excel(r'Valores.xlsx')
+    df = pd.read_excel(os.path.join(caminho_base, 'Valores.xlsx'))
 
     # Coloca a coluna 'Abr.' como indice e filtra os valores, depois reseta o indice da matriz filtrada
     df_filtrada = df.set_index('Abr.').loc[names].reset_index()
