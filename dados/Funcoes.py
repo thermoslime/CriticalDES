@@ -132,7 +132,7 @@ def Matriz_Tcm(Tc):
     return matriz
 
 def Get_components():
-    df = pd.read_excel(r'dados\Valores.xlsx')
+    df = pd.read_excel(r'Valores.xlsx')
     return df['Abr.'].unique()
 
 
