@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import dash
 
 # Importa a função que calcula as propriedades do DES
-from dados.Funcoes import PropriedadesDes, Get_components
+from dados.Funcoes import PropriedadesDes, Get_components, Density_Boublia, Density_Haghbakhsh
 
 # Usado na manipulação de matrizes
 import numpy as np
@@ -72,8 +72,11 @@ app.layout = dbc.Container([
                dcc.Link("Home", id = "Link_inicial",href = "/", className="btn btn-outline-light btn-lg"),
                dbc.Tooltip("Inicial page", target="Link_inicial"),
 
-               dcc.Link("Critical", id = "Critical", href="/pages/tela_critical", className="btn btn-outline-light btn-lg mx-2"),
-               dbc.Tooltip("Get critical properties DES", target="Critical"),
+               dcc.Link("Critical", id = "Link_critical", href="/pages/tela_critical", className="btn btn-outline-light btn-lg mx-2"),
+               dbc.Tooltip("Get critical properties DES", target="Link_critical"),
+
+               dcc.Link("Correlations", id = "Link_correlation", href="/pages/tela_propriedade", className="btn btn-outline-secondary btn-lg disabled"),
+               dbc.Tooltip("Uses empirical correlations to calculate properties", target="Link_correlation"),
             ], className="ms-auto d-flex")
     ]),
 
@@ -95,6 +98,9 @@ app.layout = dbc.Container([
     
     dcc.Store(id = 'critical_des',  storage_type = 'session'),
     dcc.Store(id = 'critical_componentes',  storage_type = 'session'),
+
+    dcc.Store(id = 'Density_Haghbakhsh', storage_type = 'session'),
+    dcc.Store(id = 'Density_Boublia', storage_type = 'session')
 ],fluid=True)
 
 
@@ -143,6 +149,118 @@ def sets_inalterar(name1, name2, name3, x1, x2, x3):
    return estado_1, estado_2, estado_3, valor_1, valor_2, valor_3
 
 
+# Edição link
+@app.callback(
+    # Recebendo os valores na tela
+    Output(component_id='Link_correlation', component_property= 'style'),
+    Output(component_id='Link_correlation', component_property= 'className'),
+
+   Input(component_id='critical_des', component_property='data'),
+   Input(component_id='critical_componentes', component_property='data'),
+
+)
+def links_dinamic(des_tabel, comp_tabel):
+   #className="btn btn-outline-light btn-lg"
+
+   # Se existir algo
+   if des_tabel != 'Error Type' and des_tabel != 'Error Sum' and des_tabel != None:
+
+      df_des = pd.DataFrame(des_tabel)
+      df_comp = pd.DataFrame(comp_tabel)
+
+      # Se houver 2 ou 3 componentes:
+      if df_comp['Abr.'].value_counts()['/'] <= 1:
+         estilo = {'pointer-events': 'auto'}
+         classe = "btn btn-outline-light btn-lg"
+
+         return estilo, classe
+      
+      else:
+         estilo = {"pointerEvents": "auto", "cursor": "not-allowed", 'color': 'gray', "opacity": "0.85"}
+         classe = "btn btn-outline-secondary btn-lg disabled"
+
+         return estilo, classe
+   
+   else:
+      estilo = {"pointerEvents": "auto", "cursor": "not-allowed", 'color': 'gray', "opacity": "0.85"}
+      classe = "btn btn-outline-secondary btn-lg disabled"
+
+      return estilo, classe
+
+
+# Mostrar as densidades
+@app.callback(
+   Output(component_id='Propriedade', component_property='children'),
+
+   Input(component_id= 'Density_Haghbakhsh', component_property='data'),
+   Input(component_id= 'Density_Boublia', component_property='data'),
+   State(component_id='critical_des', component_property='data'),
+   State(component_id='Temperature_store', component_property='data'),
+   State(component_id='TemperatureUnit_store', component_property='data'),
+
+)
+def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
+   #className="btn btn-outline-light btn-lg"
+
+   # Se existir algo
+   if densi_Haghbakhsh != 'Error Type' and densi_Haghbakhsh != 'Error Sum' and densi_Haghbakhsh != None:
+
+      df_des = pd.DataFrame(des_tabel)
+
+      conteudo = html.Div([ 
+
+
+         html.P(children = f'For the informed system, at {temperature} {temp_uni}:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+
+         dash_table.DataTable(
+            data = round(pd.DataFrame(des_tabel), 4).to_dict('records'), #List of dict
+            columns = [
+               {"name": i, 
+                "id": i, 
+               } for i in pd.DataFrame(des_tabel).columns],
+            
+            style_cell={
+               'fontSize': '18px',
+               'textAlign': 'center',      # alinhamento horizontal
+               'color': 'black',           # cor da fonte
+            'backgroundColor': 'white', # cor do fundo da célula
+            },
+
+            style_header={
+               'fontWeight': 'bold',
+               'backgroundColor': "#abfcff",
+               'fontSize': '20px',
+               'color': 'black',
+            }
+         ),
+
+      html.Br(),
+      html.P(children = 'The following values were obtained:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+
+      html.Div([
+                  html.Strong("Density (Haghbakhsh Correlation): "),
+                  html.Span(f"{densi_Haghbakhsh:.5f} g/cm³")
+            ], style={"marginBottom": "10px"}),
+
+            html.Div([
+                  html.Strong("Density (Boublia Correlation): "),
+                  html.Span(f"{densi_Boublia:.5f} g/cm³")
+            ], style={"marginBottom": "10px"}),
+
+            html.Div([
+                  html.Strong("Relative Percentage Error (relative a Haghbakhsh): "),
+                  html.Span(f"{(abs(densi_Boublia - densi_Haghbakhsh) / densi_Haghbakhsh) * 100:.4f} %")
+            ]),
+
+])
+      
+      return conteudo
+   
+   else:
+        raise PreventUpdate
+
+
+
 # Calcular os valores
 @app.callback(
    # Output para cadastrar e mostrar valores
@@ -152,6 +270,9 @@ def sets_inalterar(name1, name2, name3, x1, x2, x3):
    Output(component_id= 'critical_componentes',  component_property='data'),
    Output(component_id= 'Temperature_store',  component_property='data'),
    Output(component_id= 'TemperatureUnit_store',  component_property='data'),
+
+   Output(component_id= 'Density_Haghbakhsh',  component_property='data'),
+   Output(component_id= 'Density_Boublia',  component_property='data'),
 
    Input(component_id='critical_button', component_property='n_clicks'),
 
@@ -177,11 +298,11 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
          float(temperature)
       
       except:
-         mensagem = html.P(children = 'An error occurred, check the molar compositions reported!', style={'color': 'red',
+         mensagem = html.P(children = 'An error occurred, check the molar compositions and temperature reported!', style={'color': 'red',
                                                                                                        'fontWeight': 'bold',
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})
-         return mensagem, 'Error Type', 'Error Type', 'Error Type', 'Error Type'
+         return mensagem, 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type'
       
       if frac_1 + frac_2 + frac_3 == 1:          
          names = [name1, name2, name3]
@@ -194,10 +315,24 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
 
             dict_comp = df_comp.to_dict('records') # list of dicts
             dict_des = df_des.to_dict('records') # list of dicts
+
+            # Propriedades para calcular a densidade
+            Mw = df_des['Mw (g/mol)'][0]
+            Vc = df_des['Vc (mL/mol)'][0]
+            Tc = df_des['Tc (K)'][0]
+            Pc = df_des['Pc (bar)'][0]
+            w =  df_des['ω'][0]
+            densi_Haghbakhsh = Density_Haghbakhsh(temperature, Tc, Vc, w)
+            densi_Boublia = Density_Boublia(temperature, Mw, Tc, Vc, Pc, w)
          
+         # Se tiver somente 1
          else:
             dict_comp = df_comp.to_dict('records') # list of dicts
             dict_des = df_comp[df_comp['Abr.'] != '/'].to_dict('records') # list of dicts
+
+            densi_Haghbakhsh = None
+            densi_Boublia = None
+
          ## Preparando a mensagem da tela
          
          conteudo = html.Div([ 
@@ -264,14 +399,15 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
          ])
 
          # Armazenamos os dados na forma de dicionarios
-         return conteudo, dict_des, dict_comp, temperature, temp_unit
+         return conteudo, dict_des, dict_comp, temperature, temp_unit, densi_Haghbakhsh, densi_Boublia
       
       else:
          mensagem = html.P(children = 'An error occurred: the total mole fraction must equal 1.', style={'color': 'red',
                                                                                                        'fontWeight': 'bold',
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})
-         return mensagem, 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum'
+         
+         return mensagem, 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum'
    
    else:
       return dash.no_update
@@ -374,7 +510,7 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
       return conteudo
 
    elif des_tabel == 'Error Type':
-      mensagem = html.P(children = 'An error occurred, check the molar compositions reported!', style={'color': 'red',
+      mensagem = html.P(children = 'An error occurred, check the molar compositions and temperature reported!', style={'color': 'red',
                                                                                                        'fontWeight': 'bold',
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})

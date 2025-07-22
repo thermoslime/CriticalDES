@@ -186,3 +186,80 @@ def PropriedadesDes(names, X):
     }])
 
     return df_filtrada, df_des
+
+
+def Density_Haghbakhsh(T, Tc, Vc, w):
+    """
+    Função que retorna a densidade de acordo com a correlação de Haghbakhsh. Des de 283.15 K até 373.15 K.
+
+    Parâmetros
+    ----------
+    T | Float
+        Temperatura em K
+    Pc | Float (Bar)
+        Pressão Crítica
+    Tc | Float
+        Temperatura Crítica
+    Vc | Float
+        Volume molar
+    M | Float
+        Massa Molar (g/mol)
+    w | Float
+        Fator acêntrico
+    R | Float
+        Constante dos gases ideais J / (⋅mol K) .
+
+    Retorna
+    ----------
+    Densidade
+    """
+
+    A1 = - 1.13e-6
+    A2 = 2.566e-3
+    A3 = 0.2376
+    A4 = -4.67e-4
+    B = -4.64e-4
+
+    A = A1 * pow(Tc, 2) + A2 * Tc + A3 * pow(w, 0.2211) + A4 * Vc
+    densidade = A + B * T
+
+    return densidade
+
+
+def Density_Boublia(T, MM, Tc, Vc, Pc, w):
+    """
+    Função que retorna a densidade de acordo com a correlação de Boublia et al. (2023), para sistemas ternários. Aplicou na faixa de 273.15 até 373.15 K.
+
+    Parâmetros
+    ----------
+    T | Float
+        Temperatura em K
+    Pc | Float Bar
+        Pressão Crítica
+    Tc | Float
+        Temperatura Crítica
+    Vc | Float
+        Volume molar
+    M | Float
+        Massa Molar (g/mol)
+    w | Float
+        Fator acêntrico
+    R | Float
+        Constante dos gases ideais J / (⋅mol K) .
+
+    Retorna
+    ----------
+    Densidade
+    """
+
+    A = -4.717e-7
+    B =  9.098e-4
+    C =  7.1965e-2
+    D = -2.034e-3
+    E = -6.540e-4
+    F = -6.051e-5
+    G = 6.1911e-3
+
+    densidade = A * pow(Tc, 2) + B * Tc + C * pow(w, 0.67131) + D * Vc + E * T + F * Pc + G * MM + 0.8597
+
+    return densidade

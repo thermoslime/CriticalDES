@@ -109,10 +109,12 @@ layout  = html.Div(id="intro", children=[
 
     html.H1("References"),
         html.Ul([
-        html.Li("BOUBLIA, Abir et al. Critical Properties of Ternary Deep Eutectic Solvents Using Group Contribution with Extended Lee-Kesler Mixing Rules. ACS Omega, v. 8, n. 14, p. 13177–13191, 11 abr. 2023.;"),
-        html.Li("PATEL, Dhruv et al. Estimation of density and viscosity of deep eutectic solvents: Experimental and machine learning approach. Asia-Pacific Journal of Chemical Engineering, v. 19, n. 6, p. e3151, 1 nov. 2024.;"),
+        html.Li("ABDOLLAHZADEH, Mohammadjavad et al. Estimating the density of deep eutectic solvents applying supervised machine learning techniques. Scientific Reports 2022 12:1, v. 12, n. 1, p. 1–16, 23 mar. 2022.;"),
+        html.Li("BOUBLIA, Abir et al. Critical Properties of Ternary Deep Eutectic Solvents Using Group Contribution with Extended Lee-Kesler Mixing Rules. ACS Omega, v. 8, n. 14, p. 13177–13191, 11 abr. 2023;"),
+        html.Li("HAGHBAKHSH, Reza et al. Simple and global correlation for the densities of deep eutectic solvents. Journal of Molecular Liquids, v. 296, p. 111830, 15 dez. 2019.;"),
+        html.Li("OMAR, Karzan A.; SADEGHI, Rahmat. Database of deep eutectic solvents and their physical properties: A review. Journal of Molecular Liquids, v. 384, p. 121899, 15 ago. 2023. ;"),
         html.Li("VALDERRAMA, José O.; FORERO, Luis A.; ROJAS, Roberto E. Critical properties and normal boiling temperature of ionic liquids. Update and a new consistency test. Industrial and Engineering Chemistry Research, v. 51, n. 22, p. 7838–7844, 6 jun. 2012;"),
-    ], style={'text-align': 'justify'}),
+    ], style={'text-align': 'justify', "fontSize": "1.2em"}),
 
     html.Br(),
     html.Br()

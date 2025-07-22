@@ -38,13 +38,13 @@ layout = dbc.Container([
 
                     html.Tr([html.Td(html.P('Temperature', style={'textAlign': 'left',  "fontSize": "1.2em"})),
                                 html.Td([
-                                    dcc.Input(id='Temperature', value= 298.15, type='number',
+                                    dcc.Input(id='Temperature', type='number',  max = 373.15, min = 273.15, 
                                             style={'textAlign': 'center', 'width': '100%'},
-                                            persistence = True, persistence_type = "session")
+                                            persistence = True,  placeholder="273.15 - 373.15", persistence_type = "session")
                                 ]),
 
                                 html.Td([
-                                    dcc.Dropdown(id='TemperatureUnit', options=['K', '°C', '°F'], value='K',
+                                    dcc.Dropdown(id='TemperatureUnit', options=['K'], value='K',
                                                 multi=False,
                                                 clearable=False,
                                                 disabled= False,
@@ -78,7 +78,7 @@ layout = dbc.Container([
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
 
-                        html.Td([dcc.Input(id='frac_1', type='number', max = 1, min = 0, value = 0.5,  step = 0.000001,
+                        html.Td([dcc.Input(id='frac_1', type='number', max = 1, min = 0, value = 0.5, step = 'any',
                                             style={'width': '100%', 'textAlign': 'center'},
                                             persistence = True)
                                 ]),
@@ -93,7 +93,7 @@ layout = dbc.Container([
                                          multi=False, clearable=False, disabled= False, persistence = True, 
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
-                        html.Td([dcc.Input(id='frac_2', type='number', max = 1, min = 0, value = 0.5, step = 0.000001,
+                        html.Td([dcc.Input(id='frac_2', type='number', max = 1, min = 0, value = 0.5, step = 'any',
                                             style={'width': '100%', 'textAlign': 'center'}, 
                                             persistence = True, persistence_type = "local")
                                 ]),
@@ -108,7 +108,7 @@ layout = dbc.Container([
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
                         html.Td([
-                            dcc.Input(id='frac_3', type='number', max = 1, min = 0, value = 0, step = 0.000001,
+                            dcc.Input(id='frac_3', type='number', max = 1, min = 0, value = 0, step = 'any',
                                       style={'width': '100%', 'textAlign': 'center'}, disabled = False,
                                       persistence = True, persistence_type = "session")
                                 ]),
