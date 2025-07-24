@@ -263,3 +263,75 @@ def Density_Boublia(T, MM, Tc, Vc, Pc, w):
     densidade = A * pow(Tc, 2) + B * Tc + C * pow(w, 0.67131) + D * Vc + E * T + F * Pc + G * MM + 0.8597
 
     return densidade
+
+
+def Speed_Peyrovedin(T, MM, Vc, w):
+    """
+    Função que retorna a velocidade do som usando a correlação de Peyrovedin et al. (2020). Criada para DES Binários na faixa 278.15 até 363.15 K.
+
+    Parâmetros
+    ----------
+    T | Float
+        Temperatura em K
+    Vc | Float
+        Volume molar
+    M | Float
+        Massa Molar (g/mol)
+    w | Float
+        Fator acêntrico
+
+    Retorna
+    ----------
+    Cp (J/mol K)
+    """
+    #bar para MPa
+
+
+    u = w * (7.378 * MM - 2.012 * T) - 2.911 * Vc + 2514.2
+
+    return u
+
+
+def Cp_Mehrdad(T, MM, Pc_bar, w):
+    """
+    Função que retorna Cp usando a correlação de Mehrdad et al. (2020). Criada para DES Binários na faixa 278.15 até 363.15 K.
+
+    Parâmetros
+    ----------
+    T | Float
+        Temperatura em K
+    Pc | Float (Bar)
+        Pressão Crítica
+    Tc | Float
+        Temperatura Crítica
+    Vc | Float
+        Volume molar
+    M | Float
+        Massa Molar (g/mol)
+    w | Float
+        Fator acêntrico
+    R | Float
+        Constante dos gases ideais J / (⋅mol K) .
+
+    Retorna
+    ----------
+    Cp (J/mol K)
+    """
+    #bar para MPa
+    Pc = Pc_bar / 10
+
+    A1 = 3.8e-4
+    A2 = 6.3e-5
+    A3 = -24577.4
+    A4 = -94.9
+    B = 132.27
+
+    A = A1 * (pow(MM, 3) / pow(Pc, 6)) + A2 * pow(MM, 2 * w) + (A3 / MM) + A4
+
+    Cp = A + B * pow(T, 1/4)
+
+    return Cp
+
+
+
+

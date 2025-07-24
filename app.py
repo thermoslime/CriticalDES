@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import dash
 
 # Importa a função que calcula as propriedades do DES
-from dados.Funcoes import PropriedadesDes, Get_components, Density_Boublia, Density_Haghbakhsh
+from dados.Funcoes import PropriedadesDes, Get_components, Density_Boublia, Density_Haghbakhsh, Speed_Peyrovedin, Cp_Mehrdad
 
 # Usado na manipulação de matrizes
 import numpy as np
@@ -98,6 +98,9 @@ app.layout = dbc.Container([
 
     dcc.Store(id = 'Density_Haghbakhsh', storage_type = 'session'),
     dcc.Store(id = 'Density_Boublia', storage_type = 'session'),
+
+    dcc.Store(id = 'Speed_Peyrovedin', storage_type = 'session'),
+    dcc.Store(id = 'Cp_Mehrdad', storage_type = 'session'),
 
     dcc.Store(id = 'fracoes_molares', storage_type = 'session')
 ],fluid=True)
@@ -204,16 +207,22 @@ def links_dinamic(des_tabel, comp_tabel):
 
 # Mostrar as densidades
 @app.callback(
-   Output(component_id='Propriedade', component_property='children'),
+   Output(component_id='DES_Table', component_property='children'),
+   Output(component_id='Density', component_property='children'),
+   Output(component_id='Speed', component_property='children'),
+   Output(component_id='Heat', component_property='children'),
 
    Input(component_id= 'Density_Haghbakhsh', component_property='data'),
    Input(component_id= 'Density_Boublia', component_property='data'),
+   Input(component_id= 'Speed_Peyrovedin', component_property='data'),
+   Input(component_id= 'Cp_Mehrdad', component_property='data'),
+
    State(component_id='critical_des', component_property='data'),
    State(component_id='Temperature_store', component_property='data'),
    State(component_id='TemperatureUnit_store', component_property='data'),
 
 )
-def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
+def prop_lab(densi_Haghbakhsh, densi_Boublia, speed, cp, des_tabel, temperature, temp_uni):
    #className="btn btn-outline-light btn-lg"
 
    # Se existir algo
@@ -221,10 +230,10 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
 
       df_des = pd.DataFrame(des_tabel)
 
-      conteudo = html.Div([ 
+      tabela_des = html.Div([
+         html.Br(),
 
-
-         html.P(children = f'For the informed system, at {temperature} {temp_uni}:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+         html.P(children = f'The properties below were obtained for DES, at a temperature of {temperature} {temp_uni}:', style={'textAlign': 'left', "fontSize": "1.2em"}),
 
          dash_table.DataTable(
             data = round(pd.DataFrame(des_tabel), 4).to_dict('records'), #List of dict
@@ -248,27 +257,57 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
             }
          ),
 
-      html.Br(),
-      html.P(children = 'The following values were obtained:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+         html.Br(),
+         
+         ])
 
-      html.Div([
-                  html.Strong("Density (Haghbakhsh Correlation): "),
-                  html.Span(f"{densi_Haghbakhsh:.5f} g/cm³")
-            ], style={"marginBottom": "10px"}),
 
-            html.Div([
-                  html.Strong("Density (Boublia Correlation): "),
-                  html.Span(f"{densi_Boublia:.5f} g/cm³")
-            ], style={"marginBottom": "10px"}),
+      conteudo_des = html.Div([ 
+         html.Br(),
+         html.P(children = 'The following values were obtained:', style={'textAlign': 'left', "fontSize": "1.2em"}),
 
-            html.Div([
-                  html.Strong("Relative Percentage Error (relative a Haghbakhsh): "),
-                  html.Span(f"{(abs(densi_Boublia - densi_Haghbakhsh) / densi_Haghbakhsh) * 100:.4f} %")
-            ]),
+         html.Div([
+                     html.Strong("Density (Haghbakhsh Correlation): "),
+                     html.Span(f"{densi_Haghbakhsh:.5f} g/cm³")
+               ], style={"marginBottom": "10px"}),
 
-])
+               html.Div([
+                     html.Strong("Density (Boublia Correlation): "),
+                     html.Span(f"{densi_Boublia:.5f} g/cm³")
+               ], style={"marginBottom": "10px"}),
+
+               html.Div([
+                     html.Strong("Relative Percentage Error (relative a Haghbakhsh): "),
+                     html.Span(f"{(abs(densi_Boublia - densi_Haghbakhsh) / densi_Haghbakhsh) * 100:.4f} %")
+               ]),
+
+   ])
       
-      return conteudo
+      conteudo_speed = html.Div([ 
+         html.Br(),
+         html.P(children = 'The following values were obtained:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+
+         html.Div([
+                     html.Strong("u (Peyrovedin Correlation): "),
+                     html.Span(f"{speed:.5f} m/s")
+               ], style={"marginBottom": "10px"}),
+
+      ])
+
+      conteudo_cp = html.Div([ 
+         html.Br(),
+         html.P(children = 'The following values were obtained:', style={'textAlign': 'left', "fontSize": "1.2em"}),
+
+         html.Div([
+                     html.Strong("Cp (Taherzadeh Correlation): "),
+                     html.Span(f"{cp:.5f} J/(mol K)")
+               ], style={"marginBottom": "10px"}),
+
+      ])
+
+
+      
+      return tabela_des, conteudo_des, conteudo_speed, conteudo_cp
    
    else:
         mensagem = html.P(children = 'The chosen solvent is not a binary or ternary DES!', style={'color': 'red',
@@ -276,7 +315,7 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})
 
-        return mensagem
+        return None, mensagem, mensagem, mensagem
 
 
 
@@ -292,6 +331,10 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
 
    Output(component_id= 'Density_Haghbakhsh',  component_property='data'),
    Output(component_id= 'Density_Boublia',  component_property='data'),
+
+   Output(component_id= 'Speed_Peyrovedin',  component_property='data'),
+   Output(component_id= 'Cp_Mehrdad',  component_property='data'),
+   ######### Inputs ##########
 
    Input(component_id='critical_button', component_property='n_clicks'),
 
@@ -321,7 +364,7 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
                                                                                                        'fontWeight': 'bold',
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})
-         return mensagem, 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type'
+         return mensagem, 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type', 'Error Type'
       
       if frac_1 + frac_2 + frac_3 == 1:          
          names = [name1, name2, name3]
@@ -343,6 +386,9 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
             w =  df_des['ω'][0]
             densi_Haghbakhsh = Density_Haghbakhsh(temperature, Tc, Vc, w)
             densi_Boublia = Density_Boublia(temperature, Mw, Tc, Vc, Pc, w)
+
+            speed = Speed_Peyrovedin(temperature, Mw, Vc, w)
+            cp = Cp_Mehrdad(temperature, Mw, Pc, w)
          
          # Se tiver somente 1
          else:
@@ -351,6 +397,9 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
 
             densi_Haghbakhsh = None
             densi_Boublia = None
+
+            speed = None
+            cp = None
 
          ## Preparando a mensagem da tela
          
@@ -411,6 +460,8 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
             # Botão de download
             dbc.Button(children="Download CSV", id='Botao_download', n_clicks=0, outline=True, color="dark", size = 'lg',
                         className=" mx-2"),
+            dbc.Tooltip("Download a file with the calculated data", target="Botao_download"),
+            
 
             dcc.Link("Correlations", id = "Link_correlation", href="/pages/tela_propriedade", className="btn btn-outline-secondary btn-lg disabled"),
             dbc.Tooltip("Uses empirical correlations to calculate properties of binary and ternary DES", target="Link_correlation"),
@@ -420,7 +471,7 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
          ])
 
          # Armazenamos os dados na forma de dicionarios
-         return conteudo, dict_des, dict_comp, temperature, temp_unit, densi_Haghbakhsh, densi_Boublia
+         return conteudo, dict_des, dict_comp, temperature, temp_unit, densi_Haghbakhsh, densi_Boublia, speed, cp
       
       else:
          mensagem = html.P(children = 'An error occurred: the total mole fraction must equal 1.', style={'color': 'red',
@@ -428,7 +479,7 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
                                                                                                        'textAlign': 'left',  
                                                                                                        "fontSize": "1.2em"})
          
-         return mensagem, 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum'
+         return mensagem, 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum', 'Error Sum',  'Error Sum'
    
    else:
       return dash.no_update
@@ -523,6 +574,7 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
                      # Botão de download
          dbc.Button(children="Download CSV", id='Botao_download', n_clicks=0, outline=True, color="dark", size = 'lg',
                        className="mx-2"),
+         dbc.Tooltip("Download a file with the calculated data", target="Botao_download"),
 
          dcc.Link("Correlations", id = "Link_correlation", href="/pages/tela_propriedade", className="btn btn-outline-secondary btn-lg disabled"),
          dbc.Tooltip("Uses empirical correlations to calculate properties of binary and ternary DES", target="Link_correlation"),

@@ -38,7 +38,7 @@ layout = dbc.Container([
 
                     html.Tr([html.Td(html.P('Temperature', style={'textAlign': 'left',  "fontSize": "1.2em"})),
                                 html.Td([
-                                    dcc.Input(id='Temperature', type='number',  max = 373.15, min = 273.15, 
+                                    dcc.Input(id='Temperature', type='number',  value = 273.15, max = 373.15, min = 273.15, 
                                             style={'textAlign': 'center', 'width': '100%'},
                                             persistence = True,  placeholder="273.15 - 373.15", persistence_type = "session")
                                 ]),
@@ -122,6 +122,7 @@ layout = dbc.Container([
     # Inicio dos cálculos
     html.Br(),
     dbc.Button("Critical Properties", id='critical_button', n_clicks=0, outline=True, color="primary", className="me-1 w-100"),
+    dbc.Tooltip("Calculate the critical properties of the system", target="critical_button"),
 
     html.Br(),
     html.Br(),
