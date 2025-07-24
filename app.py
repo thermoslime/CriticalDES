@@ -69,14 +69,11 @@ app.layout = dbc.Container([
         ]),
         
         dbc.Nav([
-               dcc.Link("Home", id = "Link_inicial",href = "/", className="btn btn-outline-light btn-lg"),
+               dcc.Link("Home", id = "Link_inicial",href = "/", className="btn btn-outline-light btn-lg  mx-2"),
                dbc.Tooltip("Inicial page", target="Link_inicial"),
 
                dcc.Link("Critical", id = "Link_critical", href="/pages/tela_critical", className="btn btn-outline-light btn-lg mx-2"),
                dbc.Tooltip("Get critical properties DES", target="Link_critical"),
-
-               dcc.Link("Correlations", id = "Link_correlation", href="/pages/tela_propriedade", className="btn btn-outline-secondary btn-lg disabled"),
-               dbc.Tooltip("Uses empirical correlations to calculate properties", target="Link_correlation"),
             ], className="ms-auto d-flex")
     ]),
 
@@ -100,11 +97,28 @@ app.layout = dbc.Container([
     dcc.Store(id = 'critical_componentes',  storage_type = 'session'),
 
     dcc.Store(id = 'Density_Haghbakhsh', storage_type = 'session'),
-    dcc.Store(id = 'Density_Boublia', storage_type = 'session')
+    dcc.Store(id = 'Density_Boublia', storage_type = 'session'),
+
+    dcc.Store(id = 'fracoes_molares', storage_type = 'session')
 ],fluid=True)
 
 
 ##################### CALLBACKS PRINCIPAL #####################
+# Armazenamento das frac
+# Edição se ternário
+@app.callback(
+    # Recebendo os valores na tela
+    Output(component_id='fracoes_molares', component_property='data'),
+
+    Input(component_id='frac_1', component_property='value'),
+    Input(component_id='frac_2', component_property='value'),
+    Input(component_id='frac_3', component_property='value'),
+)
+def save_frac(x1, x2, x3):
+   valores = [x1, x2, x3]
+
+   return valores
+
 
 # Edição se ternário
 @app.callback(
@@ -120,33 +134,33 @@ app.layout = dbc.Container([
     Input(component_id='Nome_1', component_property='value'),
     Input(component_id='Nome_2', component_property='value'),
     Input(component_id='Nome_3', component_property='value'),
-    State(component_id='frac_1', component_property='value'),
-    State(component_id='frac_2', component_property='value'),
-    State(component_id='frac_3', component_property='value'),
+
+    State(component_id='fracoes_molares', component_property='data'),
 )
-def sets_inalterar(name1, name2, name3, x1, x2, x3):
-   if name1 == '/':
-      estado_1 = True
-      valor_1 = 0
-   else:
-      estado_1 = False
-      valor_1 = x1
+def sets_inalterar(name1, name2, name3, list_frac):
+   
+   nomes = [name1, name2, name3]
 
-   if name2 == '/':
-      estado_2 = True
-      valor_2 = 0
+   if list_frac == None:
+      valores = [0.5, 0.5, 0]
    else:
-      estado_2 = False
-      valor_2 = x2
+      valores = list_frac
 
-   if name3 == '/':
-      estado_3 = True
-      valor_3 = 0
+   estados = [False] * 3
+
+   if '/' in nomes:
+      
+      for indice, valor in enumerate(nomes):
+         if nomes[indice] == '/':
+            estados[indice] = True
+            valores[indice] = 0
+         else:
+            pass
+
+      return estados[0], estados[1], estados[2], valores[0], valores[1], valores[2]
+
    else:
-      estado_3 = False
-      valor_3 = x3
-
-   return estado_1, estado_2, estado_3, valor_1, valor_2, valor_3
+      raise PreventUpdate
 
 
 # Edição link
@@ -171,19 +185,19 @@ def links_dinamic(des_tabel, comp_tabel):
       # Se houver 2 ou 3 componentes:
       if df_comp['Abr.'].value_counts()['/'] <= 1:
          estilo = {'pointer-events': 'auto'}
-         classe = "btn btn-outline-light btn-lg"
+         classe = "btn btn-outline-dark btn-lg mx-2"
 
          return estilo, classe
       
       else:
          estilo = {"pointerEvents": "auto", "cursor": "not-allowed", 'color': 'gray', "opacity": "0.85"}
-         classe = "btn btn-outline-secondary btn-lg disabled"
+         classe = "btn btn-outline-secondary btn-lg disabled mx-2"
 
          return estilo, classe
    
    else:
       estilo = {"pointerEvents": "auto", "cursor": "not-allowed", 'color': 'gray', "opacity": "0.85"}
-      classe = "btn btn-outline-secondary btn-lg disabled"
+      classe = "btn btn-outline-secondary btn-lg disabled mx-2"
 
       return estilo, classe
 
@@ -257,7 +271,12 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, des_tabel, temperature, temp_uni):
       return conteudo
    
    else:
-        raise PreventUpdate
+        mensagem = html.P(children = 'The chosen solvent is not a binary or ternary DES!', style={'color': 'red',
+                                                                                                       'fontWeight': 'bold',
+                                                                                                       'textAlign': 'left',  
+                                                                                                       "fontSize": "1.2em"})
+
+        return mensagem
 
 
 
@@ -336,7 +355,6 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
          ## Preparando a mensagem da tela
          
          conteudo = html.Div([ 
-
             html.Hr(),
             html.Br(),
 
@@ -392,7 +410,10 @@ def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperatu
 
             # Botão de download
             dbc.Button(children="Download CSV", id='Botao_download', n_clicks=0, outline=True, color="dark", size = 'lg',
-                        className="me-1"),
+                        className=" mx-2"),
+
+            dcc.Link("Correlations", id = "Link_correlation", href="/pages/tela_propriedade", className="btn btn-outline-secondary btn-lg disabled"),
+            dbc.Tooltip("Uses empirical correlations to calculate properties of binary and ternary DES", target="Link_correlation"),
 
             dcc.Download(id="download_Resultados"),
             html.Br(),
@@ -501,7 +522,11 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
 
                      # Botão de download
          dbc.Button(children="Download CSV", id='Botao_download', n_clicks=0, outline=True, color="dark", size = 'lg',
-                       className="me-1"),
+                       className="mx-2"),
+
+         dcc.Link("Correlations", id = "Link_correlation", href="/pages/tela_propriedade", className="btn btn-outline-secondary btn-lg disabled"),
+         dbc.Tooltip("Uses empirical correlations to calculate properties of binary and ternary DES", target="Link_correlation"),
+
 
          dcc.Download(id="download_Resultados"),
          html.Br(),

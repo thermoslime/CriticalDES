@@ -80,7 +80,7 @@ layout = dbc.Container([
 
                         html.Td([dcc.Input(id='frac_1', type='number', max = 1, min = 0, value = 0.5, step = 'any',
                                             style={'width': '100%', 'textAlign': 'center'},
-                                            persistence = True)
+                                            persistence = True, persistence_type = 'session')
                                 ]),
                                 ]),
                     
@@ -89,13 +89,13 @@ layout = dbc.Container([
                         html.Td(html.P('Component 2', style={'textAlign': 'left',  "fontSize": "1.2em"})),
                             
                         html.Td([
-                            dcc.Dropdown(id='Nome_2', options= opcoes, value= opcoes[0],
+                            dcc.Dropdown(id='Nome_2', options= opcoes, value= opcoes[2],
                                          multi=False, clearable=False, disabled= False, persistence = True, 
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
                         html.Td([dcc.Input(id='frac_2', type='number', max = 1, min = 0, value = 0.5, step = 'any',
                                             style={'width': '100%', 'textAlign': 'center'}, 
-                                            persistence = True, persistence_type = "local")
+                                            persistence = True, persistence_type = 'session')
                                 ]),
                             ]),
                     
@@ -110,7 +110,7 @@ layout = dbc.Container([
                         html.Td([
                             dcc.Input(id='frac_3', type='number', max = 1, min = 0, value = 0, step = 'any',
                                       style={'width': '100%', 'textAlign': 'center'}, disabled = False,
-                                      persistence = True, persistence_type = "session")
+                                      persistence = True, persistence_type = 'session')
                                 ]),
                             ]),
                 ])  # Final do Tbody
