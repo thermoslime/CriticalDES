@@ -139,6 +139,8 @@ def Get_components():
 
 def PropriedadesDes(names, X):
 
+    qnt_nulos = names.count('/')
+
     # Tra
     X = np.array(X)
 
@@ -159,20 +161,50 @@ def PropriedadesDes(names, X):
     Tcm = Matriz_Tcm(Tci)
 
         
-    ####### Calculo das propriedades dos DES ####### 
-    Mdes = sum(X * Mwi)
+    ####### Calculo das propriedades dos DES #######
+    if qnt_nulos <= 1: 
+        Mdes = sum(X * Mwi)
 
-    Vcdes = X[0] * X[0] * Vcm[0][0] + X[1] * X[1] * Vcm[1][1] + X[2] * X[2] * Vcm[2][2] + 2 * X[0] * X[1] * Vcm[0][1] + 2 * X[0] * X[2] * Vcm[0][2] + 2 * X[1] * X[2] * Vcm[1][2]
+        Vcdes = X[0] * X[0] * Vcm[0][0] + X[1] * X[1] * Vcm[1][1] + X[2] * X[2] * Vcm[2][2] + 2 * X[0] * X[1] * Vcm[0][1] + 2 * X[0] * X[2] * Vcm[0][2] + 2 * X[1] * X[2] * Vcm[1][2]
 
-    Tcdes_1 = X[0] * X[0] * pow(Vcm[0][0], 0.25) * Tcm[0][0] + X[1] * X[1] * pow(Vcm[1][1], 0.25) * Tcm[1][1] +  X[2] * X[2] * pow(Vcm[2][2], 0.25) * Tcm[2][2]
+        Tcdes_1 = X[0] * X[0] * pow(Vcm[0][0], 0.25) * Tcm[0][0] + X[1] * X[1] * pow(Vcm[1][1], 0.25) * Tcm[1][1] +  X[2] * X[2] * pow(Vcm[2][2], 0.25) * Tcm[2][2]
 
-    Tcdes_2 = 2 * X[0] * X[1] * pow(Vcm[0][1], 0.25) * Tcm[0][1] + 2 * X[0] * X[2] * pow(Vcm[0][2], 0.25) * Tcm[0][2] +  2 * X[1] * X[2] * pow(Vcm[1][2], 0.25) * Tcm[1][2]
+        Tcdes_2 = 2 * X[0] * X[1] * pow(Vcm[0][1], 0.25) * Tcm[0][1] + 2 * X[0] * X[2] * pow(Vcm[0][2], 0.25) * Tcm[0][2] +  2 * X[1] * X[2] * pow(Vcm[1][2], 0.25) * Tcm[1][2]
 
-    Tcdes = (1 / pow(Vcdes, 0.25)) * (Tcdes_1 + Tcdes_2)
+        Tcdes = (1 / pow(Vcdes, 0.25)) * (Tcdes_1 + Tcdes_2)
 
-    Wdes = sum(X * Wci)
+        Wdes = sum(X * Wci)
 
-    Pcdes = (0.2905 - 0.0850 * Wdes) * (83.1447 * Tcdes) / Vcdes
+        Pcdes = (0.2905 - 0.0850 * Wdes) * (83.1447 * Tcdes) / Vcdes
+    
+    elif qnt_nulos == 2:
+        component = [n_nulo for n_nulo in names if n_nulo != "/"] # Componente diferente de "/"
+
+        df_component = df_filtrada[ df_filtrada['Abr.'] == component[0]]
+
+        Mdes = df_component['Mw (g/mol)'][0]
+        
+        Vcdes = df_component['Vc (mL/mol)'][0]
+
+        Tcdes = df_component['Tc (K)'][0]
+
+        Wdes = df_component['ω'][0]
+
+        Pcdes = df_component['Pc (bar)'][0]
+
+    
+    else:
+        df_component = df[df['Abr.'] == '/']
+
+        Mdes = df_component['Mw (g/mol)'][0]
+
+        Vcdes = df_component['Vc (mL/mol)'][0]
+
+        Tcdes = df_component['Tc (K)'][0]
+
+        Wdes = df_component['ω'][0]
+
+        Pcdes = df_component['Pc (bar)'][0]
 
 
     df_des = pd.DataFrame([{
