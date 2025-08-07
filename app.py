@@ -5,13 +5,17 @@ import dash_bootstrap_components as dbc
 import dash
 
 # Importa a função que calcula as propriedades do DES
-from dados.Funcoes import PropriedadesDes, Get_components, Density_Boublia, Density_Haghbakhsh, Speed_Peyrovedin, Cp_Mehrdad
+from dados.Funcoes import PropriedadesDes, Get_components, Density_Boublia, Density_Haghbakhsh, Speed_Peyrovedin, Cp_Mehrdad, viscosity_LewisSquires, viscosity_Bakhtyary, Grafico_viscosidade, df_references
 
 # Usado na manipulação de matrizes
 import numpy as np
 
 # Usada para fazer download do csv
 import pandas as pd
+
+# Biblioteca para plotar gráficos interativos
+import plotly.express as px
+import plotly.graph_objects as go
 
 # Usada em alguns Callbacks
 from dash.exceptions import PreventUpdate
@@ -102,25 +106,36 @@ app.layout = dbc.Container([
     dcc.Store(id = 'Speed_Peyrovedin', storage_type = 'session'),
     dcc.Store(id = 'Cp_Mehrdad', storage_type = 'session'),
 
-    dcc.Store(id = 'fracoes_molares', storage_type = 'session')
+    dcc.Store(id = 'fracoes_molares', storage_type = 'session'),
+    dcc.Store(id = 'viscosity_dados',  storage_type = 'session'),
 ],fluid=True)
 
 
-##################### CALLBACKS PRINCIPAL #####################
+##################### INTERATIVO #####################
 # Armazenamento das frac
 # Edição se ternário
 @app.callback(
     # Recebendo os valores na tela
     Output(component_id='fracoes_molares', component_property='data'),
 
+    Input(component_id='FracUnit', component_property='value'),
+    
     Input(component_id='frac_1', component_property='value'),
     Input(component_id='frac_2', component_property='value'),
     Input(component_id='frac_3', component_property='value'),
 )
-def save_frac(x1, x2, x3):
-   valores = [x1, x2, x3]
+def save_frac(escolha, v1, v2, v3):
+   if escolha == 'Xi':
+      x1 = v1
+      x2 = v2
+      x3 = v3
+   else:
+      soma = v1 + v2 + v3
+      x1 = v1 / soma
+      x2 = v2 / soma
+      x3 = v3 / soma
 
-   return valores
+   return [x1, x2, x3]
 
 
 # Edição se ternário
@@ -204,8 +219,8 @@ def links_dinamic(des_tabel, comp_tabel):
 
       return estilo, classe
 
-
-# Mostrar as densidades
+################ PROPRIEDADES ##############
+# Mostrar as densidades, velocidade do som e Cp
 @app.callback(
    Output(component_id='DES_Table', component_property='children'),
    Output(component_id='Density', component_property='children'),
@@ -317,7 +332,135 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, speed, cp, des_tabel, temperature,
 
         return None, mensagem, mensagem, mensagem
 
+# Calcula a viscosidade e mostra o gráfico e botão
+@app.callback(
+   Output(component_id='Viscosity', component_property='children'),
+   Output(component_id='local_download_visco', component_property='children'),
+   Output(component_id= 'viscosity_dados',  component_property='data'),
 
+   State(component_id= 'Density_Haghbakhsh', component_property='data'),
+   Input(component_id= 'viscosity_button', component_property='n_clicks'),
+   State(component_id='critical_des', component_property='data'),
+
+   State(component_id='Ref_temperature', component_property='value'),
+   State(component_id='Ref_viscosity', component_property='value'),
+   State(component_id='viscosityUnit_ref', component_property='value'),
+   prevent_initial_call=True
+
+)
+def prop_visco_lab(densi_Haghbakhsh, n_clicks, des_tabel, 
+                   Tk, Vk, unidade_visco):
+   #className="btn btn-outline-light btn-lg"
+
+   # Se existir algo
+   if densi_Haghbakhsh != 'Error Type' and densi_Haghbakhsh != 'Error Sum' and densi_Haghbakhsh != None:
+
+      if n_clicks > 0:
+         df_des = pd.DataFrame(des_tabel)
+
+         Tc = df_des['Tc (K)'][0]
+         Pc = df_des['Pc (bar)'][0]
+
+         if Tk  != None and Vk != None:
+            
+            if Vk > 0 :
+
+               #### Cálculo ######
+               # Eixo das viscosidades
+               eixo_temperature = np.arange(283.15, 374.15)
+               eixo_visco_LS = []
+               eixo_visco_Ba = []
+
+               for T in eixo_temperature:
+                  if unidade_visco == 'Pa . s':
+                     # Viscosity in Pa . s
+                     visco_LewisSquires = viscosity_LewisSquires(T, Tk, Vk * 1000) / 1000 # Cp = mPa . s
+                     visco_Bakhtyary = viscosity_Bakhtyary(T, Tk, Tc, Pc, Vk) # Pa . s
+
+                     eixo_visco_LS.append(visco_LewisSquires) # Pa . s
+                     eixo_visco_Ba.append(visco_Bakhtyary) # Pa . s
+                  
+                  else: 
+                     # Viscosity in mPa . s
+                     visco_LewisSquires = viscosity_LewisSquires(T, Tk, Vk) # Cp = mPa . s
+                     visco_Bakhtyary = viscosity_Bakhtyary(T, Tk, Tc, Pc, Vk / 1000) * 1000 #Pa . s
+
+                     eixo_visco_LS.append(visco_LewisSquires) # mPa . s
+                     eixo_visco_Ba.append(visco_Bakhtyary) # mPa . s
+                  
+
+               # Figura
+               titulo = ""
+               legend = ["Lewis and Squires Correlation", "Bakhtyari Correlation"]
+
+               if unidade_visco == 'Pa . s':
+                  y_label = 'Viscosity (Pa . s)'
+               else:
+                  y_label = 'Viscosity (mPa . s)'
+               
+               dataframe_visco = pd.DataFrame({
+                  "Temperature (K)" : eixo_temperature,
+                  f"Lewis and Squires correlation ({unidade_visco})" : eixo_visco_LS,
+                  f"Bakhtyari correlation ({unidade_visco})" : eixo_visco_Ba
+               })
+
+               dict_visco = dataframe_visco.to_dict('records') #return to save
+
+               figura = Grafico_viscosidade(eixo_temperature, eixo_visco_LS, eixo_visco_Ba, titulo, legenda= legend, eixoY = y_label) #longdash
+
+               botao_down = html.Div([dbc.Button("CSV download", id='button_csv_viscosity', n_clicks=0, outline=True, color="primary", className="me-1 w-100"),
+                             dbc.Tooltip("Download a CSV with values calculates to viscosity", target="button_csv_viscosity"),
+                             dcc.Download(id="download_Resultados_viscosity"),
+                             ])
+
+               # Tela de impressão
+               conteudo = html.Div([
+                  dcc.Graph(
+                     id='visco_grafico',
+                     figure=figura,
+                     style={"width": "100%",   # ocupa toda a largura
+                           "height": "80vh"}   # 80% da altura da tela}
+                  )
+               ])
+
+               return conteudo, botao_down, dict_visco
+
+
+            # Viscosity < 0
+            else:
+               mensagem = html.P(children = 'Invalid viscosity reference!', style={'color': 'red',
+                                                                                                       'fontWeight': 'bold',
+                                                                                                       'textAlign': 'left',  
+                                                                                                       "fontSize": "1.2em"})
+
+               return mensagem, None, None
+
+         # Viscosity or temperature incorret
+         else:
+            mensagem = html.P(children = 'Invalid temperature and viscosity reference!', style={'color': 'red',
+                                                                                                       'fontWeight': 'bold',
+                                                                                                       'textAlign': 'left',  
+                                                                                                       "fontSize": "1.2em"})
+
+            return mensagem, None, None
+      
+      # n_clicks = 0
+      else:
+         raise PreventUpdate
+
+   # Binary DES not reported
+   else:
+        mensagem = html.P(children = 'The chosen solvent is not a binary or ternary DES!', style={'color': 'red',
+                                                                                                       'fontWeight': 'bold',
+                                                                                                       'textAlign': 'left',  
+                                                                                                       "fontSize": "1.2em"})
+
+        return mensagem, None, None
+
+
+
+
+############### PRINCIPAL - CALCULOS ###########
 
 # Calcular os valores
 @app.callback(
@@ -341,18 +484,20 @@ def prop_lab(densi_Haghbakhsh, densi_Boublia, speed, cp, des_tabel, temperature,
    State(component_id='Nome_1', component_property='value'),
    State(component_id='Nome_2', component_property='value'),
    State(component_id='Nome_3', component_property='value'),
-   
-   State(component_id='frac_1', component_property='value'),
-   State(component_id='frac_2', component_property='value'),
-   State(component_id='frac_3', component_property='value'),
+
+   State(component_id='fracoes_molares', component_property='data'),
    
    State(component_id= 'Temperature', component_property='value'),
    State(component_id= 'TemperatureUnit', component_property='value'),
    prevent_initial_call=True
 )
-def obter_dados(n_clicks, name1, name2, name3, frac_1, frac_2, frac_3, temperature, temp_unit):
+def obter_dados(n_clicks, name1, name2, name3, fracoes_molares, temperature, temp_unit):
 
    if n_clicks > 0:
+
+      frac_1, frac_2, frac_3 = fracoes_molares
+
+
       try:
          float(frac_1)
          float(frac_2)
@@ -603,6 +748,8 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
 
 
 
+
+
 ################ DOWNLOAD DO CSV #################
 @app.callback(
     Output(component_id = 'download_Resultados', component_property = 'data'),
@@ -630,10 +777,56 @@ def download_csv(n_click_download,
       str1 = "Web App to Critical Properties;Universidade Federal Ceará;LTS;\n"
       str2 = df_comp.to_csv(sep=';', index=False, encoding='utf-8-sig')
       str3 = df_des.to_csv(sep=';', index=False, encoding='utf-8-sig')
+      str4 = df_references.to_csv(sep=';', index=False, encoding='utf-8-sig')
 
-      texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n=== Components ===;\n" + str2 + "\n=== DES ===;\n" + str3
+      texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n=== Components ===;\n" + str2 + "\n=== DES ===;\n" + str3 + "\n=== ## ===;\n" + str4
 
       return dcc.send_string(texto, "Critical_Properties_DES.csv")
+
+
+    else:
+        raise PreventUpdate
+
+
+
+
+@app.callback(
+    Output(component_id = 'download_Resultados_viscosity', component_property = 'data'),
+
+    Input(component_id= 'button_csv_viscosity', component_property = 'n_clicks'),
+    State(component_id= 'viscosity_dados', component_property='data'),
+
+    State(component_id= 'critical_des', component_property='data'),
+    State(component_id= 'critical_componentes', component_property='data'),
+
+    State(component_id= 'Temperature_store',  component_property='data'),
+    State(component_id= 'TemperatureUnit_store',  component_property='data'),
+
+    # Não será chamado automaticamento no inicio
+    prevent_initial_call=True
+
+)
+def download_csv_viscosity(n_click_download, dict_visco,
+                           crit_des, crit_comp,
+                           temp, tempUnit):
+
+    if dict_visco != None:
+      if n_click_download > 0:
+         df_visco = pd.DataFrame(dict_visco)
+         df_comp = pd.DataFrame(crit_comp)
+         df_des = pd.DataFrame(crit_des)
+
+
+         str1 = "Web App to Critical Properties;Universidade Federal Ceará;LTS;\n"
+         str2 = df_comp.to_csv(sep=';', index=False, encoding='utf-8-sig')
+         str3 = df_des.to_csv(sep=';', index=False, encoding='utf-8-sig')
+         str4 = df_visco.to_csv(sep=';', index=False, encoding='utf-8-sig')
+         str5 = df_references.to_csv(sep=';', index=False, encoding='utf-8-sig')
+
+         texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n=== Components ===;\n" + str2 + "\n=== DES ===;\n" + str3 + "\n=== Estimate Viscosity ===;\n" + str4 + "\n=== ## ===;\n" + str5
+
+
+         return dcc.send_string(texto, "Viscosity_Properties_DES.csv")
 
 
     else:

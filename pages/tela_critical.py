@@ -37,13 +37,14 @@ layout = dbc.Container([
                     html.Tr([html.Th(''), html.Th('Value', style={'textAlign': 'center', 'width': '60%'}), html.Th('Unit', style={'textAlign': 'center', 'width': '20%'})]),
 
                     html.Tr([html.Td(html.P('Temperature', style={'textAlign': 'left',  "fontSize": "1.2em"})),
-                                html.Td([
+                             
+                             html.Td([
                                     dcc.Input(id='Temperature', type='number',  value = 273.15, max = 373.15, min = 273.15, 
                                             style={'textAlign': 'center', 'width': '100%'},
                                             persistence = True,  placeholder="273.15 - 373.15", persistence_type = "session")
                                 ]),
 
-                                html.Td([
+                             html.Td([
                                     dcc.Dropdown(id='TemperatureUnit', options=['K'], value='K',
                                                 multi=False,
                                                 clearable=False,
@@ -66,7 +67,16 @@ layout = dbc.Container([
             dbc.Table([
                 html.Tbody([
                     # primeira linha - titulos
-                    html.Tr([html.Th(''), html.Th('Names', style={'textAlign': 'center', 'width': '60%'}), html.Th('Xi', style={'textAlign': 'center', 'width': '20%'})]),
+                    html.Tr([html.Th(''), 
+                             html.Th('Names', style={'textAlign': 'center', 'width': '60%'}), 
+                             html.Th( dcc.Dropdown(id='FracUnit', options=[{'label': 'Mole fraction (Xi)', 'value' : 'Xi'},
+                                                                           {'label': 'Molar proportion (:)', 'value' : 'ni'}], value='Xi',
+                                                multi=False,
+                                                clearable=False,
+                                                disabled= False,
+                                                persistence = True, persistence_type = "session",
+                                                style={'textAlign': 'center', 'width': '100%'}), style={'textAlign': 'center', 'width': '20%'})]
+                             ),
 
                     # segunda linha
                     html.Tr([
@@ -78,7 +88,7 @@ layout = dbc.Container([
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
 
-                        html.Td([dcc.Input(id='frac_1', type='number', max = 1, min = 0, value = 0.5, step = 'any',
+                        html.Td([dcc.Input(id='frac_1', type='number', min = 0, value = 0.5, step = 'any',
                                             style={'width': '100%', 'textAlign': 'center'},
                                             persistence = True, persistence_type = 'session')
                                 ]),
@@ -93,7 +103,7 @@ layout = dbc.Container([
                                          multi=False, clearable=False, disabled= False, persistence = True, 
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
-                        html.Td([dcc.Input(id='frac_2', type='number', max = 1, min = 0, value = 0.5, step = 'any',
+                        html.Td([dcc.Input(id='frac_2', type='number', min = 0, value = 0.5, step = 'any',
                                             style={'width': '100%', 'textAlign': 'center'}, 
                                             persistence = True, persistence_type = 'session')
                                 ]),
@@ -108,7 +118,7 @@ layout = dbc.Container([
                                          persistence_type = "session", style={'width': '100%', 'textAlign': 'center'})
                                 ]),
                         html.Td([
-                            dcc.Input(id='frac_3', type='number', max = 1, min = 0, value = 0, step = 'any',
+                            dcc.Input(id='frac_3', type='number', min = 0, value = 0, step = 'any',
                                       style={'width': '100%', 'textAlign': 'center'}, disabled = False,
                                       persistence = True, persistence_type = 'session')
                                 ]),
