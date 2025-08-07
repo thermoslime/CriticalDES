@@ -772,14 +772,17 @@ def download_csv(n_click_download,
     if n_click_download > 0:
       df_comp = pd.DataFrame(crit_comp)
       df_des = pd.DataFrame(crit_des)
+      
+      # rename
+      df_comp.rename(columns={'ω': 'acentric factor'}, inplace = True)
+      df_des.rename(columns={'ω': 'acentric factor'}, inplace = True)
 
-
-      str1 = "Web App to Critical Properties;Universidade Federal Ceará;LTS;\n"
+      str1 = "Web App to Critical Properties;Universidade Federal Ceará;LTS;\nEncoding:;utf-8\nThis application was developed by Quinto F. H. B from the Laboratory of Thermodynamics and Separation Processes (LTS)\n"
       str2 = df_comp.to_csv(sep=';', index=False, encoding='utf-8-sig')
       str3 = df_des.to_csv(sep=';', index=False, encoding='utf-8-sig')
-      str4 = df_references.to_csv(sep=';', index=False, encoding='utf-8-sig')
+      str4 = df_references.to_csv(sep=';', index=False, encoding='utf-8')
 
-      texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n=== Components ===;\n" + str2 + "\n=== DES ===;\n" + str3 + "\n=== ## ===;\n" + str4
+      texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n'=== Components ===;\n" + str2 + "\n'=== DES ===;\n" + str3 + "\n'=== ## ===;\n" + str4
 
       return dcc.send_string(texto, "Critical_Properties_DES.csv")
 
@@ -813,17 +816,22 @@ def download_csv_viscosity(n_click_download, dict_visco,
     if dict_visco != None:
       if n_click_download > 0:
          df_visco = pd.DataFrame(dict_visco)
+
          df_comp = pd.DataFrame(crit_comp)
          df_des = pd.DataFrame(crit_des)
 
+         #rename acentric
+         df_comp.rename(columns={'ω': 'acentric factor'}, inplace = True)
+         df_des.rename(columns={'ω': 'acentric factor'}, inplace = True)
 
-         str1 = "Web App to Critical Properties;Universidade Federal Ceará;LTS;\n"
+
+         str1 = "Web App to Critical Properties;Universidade Federal Ceará;LTS;\nEncoding:;utf-8\nThis application was developed by Quinto F. H. B from the Laboratory of Thermodynamics and Separation Processes (LTS)\n"
          str2 = df_comp.to_csv(sep=';', index=False, encoding='utf-8-sig')
          str3 = df_des.to_csv(sep=';', index=False, encoding='utf-8-sig')
          str4 = df_visco.to_csv(sep=';', index=False, encoding='utf-8-sig')
          str5 = df_references.to_csv(sep=';', index=False, encoding='utf-8-sig')
 
-         texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n=== Components ===;\n" + str2 + "\n=== DES ===;\n" + str3 + "\n=== Estimate Viscosity ===;\n" + str4 + "\n=== ## ===;\n" + str5
+         texto = str1 + f"System Temperature:;{temp};{tempUnit};\n" + "\n'=== Components ===;\n" + str2 + "\n'=== DES ===;\n" + str3 + "\n'=== Estimate Viscosity ===;\n" + str4 + "\n'=== ## ===;\n" + str5
 
 
          return dcc.send_string(texto, "Viscosity_Properties_DES.csv")

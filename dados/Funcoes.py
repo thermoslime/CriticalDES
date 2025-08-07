@@ -505,6 +505,8 @@ def Grafico_viscosidade(eixo_t, eixo_visco1,
 
 
 referencias = [
+    r'Alvarez, V. H.; Valderrama, J. O. A modified Lydersen-Joback-Reid method to estimate the critical properties of biomolecules. Alimentaria. 2004, 254,55-66',
+    
     r"Bakhtyari, A., Haghbakhsh, R., Duarte, A. R. C., & Raeissi, S. (2020). A simple model for the viscosities of deep eutectic solvents. Fluid Phase Equilibria, 521, 112662.",
     
     r"Boublia, A., Lemaoui, T., Almustafa, G., Darwish, A. S., Benguerba, Y., Banat, F., & AlNashef, I. M. (2023). Critical Properties of Ternary Deep Eutectic Solvents Using Group Contribution with Extended Lee-Kesler Mixing Rules. ACS Omega, 8(14), 13177–13191.",
@@ -525,7 +527,8 @@ referencias = [
 
     r"Valderrama, J. O., & Robles, P. A. (2007). Critical properties, normal boiling temperatures, and acentric factors of fifty ionic liquids. Industrial and Engineering Chemistry Research, 46(4), 1338–1344.",
 
-    r"Valderrama, J. O., Sanga, W. W., & Lazzús, J. A. (2008). Critical properties, normal boiling temperature, and acentric factor of another 200 ionic liquids. Industrial and Engineering Chemistry Research, 47(4), 1318–1330."]
+    r"Valderrama, J. O., Sanga, W. W., & Lazzús, J. A. (2008). Critical properties, normal boiling temperature, and acentric factor of another 200 ionic liquids. Industrial and Engineering Chemistry Research, 47(4), 1318–1330.",
+    ]
 
 df_references = pd.DataFrame({
     "References" : referencias
