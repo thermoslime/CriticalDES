@@ -146,6 +146,7 @@ def PropriedadesDes(names, X):
 
     # Tra
     X = np.array(X)
+    print(f"Na função: {qnt_nulos}")
 
     # Acessando o Dataframe
     df = pd.read_excel(os.path.join(caminho_base, 'Valores.xlsx'))
@@ -181,33 +182,36 @@ def PropriedadesDes(names, X):
         Pcdes = (0.2905 - 0.0850 * Wdes) * (83.1447 * Tcdes) / Vcdes
     
     elif qnt_nulos == 2:
+
         component = [n_nulo for n_nulo in names if n_nulo != "/"] # Componente diferente de "/"
 
         df_component = df_filtrada[ df_filtrada['Abr.'] == component[0]]
 
-        Mdes = df_component['Mw (g/mol)'][0]
+        print(np.array(df_component['Mw (g/mol)'])[0])
+
+        Mdes = np.array(df_component['Mw (g/mol)'])[0]
         
-        Vcdes = df_component['Vc (mL/mol)'][0]
+        Vcdes = np.array(df_component['Vc (mL/mol)'])[0]
 
-        Tcdes = df_component['Tc (K)'][0]
+        Tcdes = np.array(df_component['Tc (K)'])[0]
 
-        Wdes = df_component['ω'][0]
+        Wdes = np.array(df_component['ω'])[0]
 
-        Pcdes = df_component['Pc (bar)'][0]
+        Pcdes = np.array(df_component['Pc (bar)'])[0]
 
     
     else:
         df_component = df[df['Abr.'] == '/']
 
-        Mdes = df_component['Mw (g/mol)'][0]
+        Mdes = np.array(df_component['Mw (g/mol)'])[0]
 
-        Vcdes = df_component['Vc (mL/mol)'][0]
+        Vcdes = np.array(df_component['Vc (mL/mol)'])[0]
 
-        Tcdes = df_component['Tc (K)'][0]
+        Tcdes = np.array(df_component['Tc (K)'])[0]
 
-        Wdes = df_component['ω'][0]
+        Wdes = np.array(df_component['ω'])[0]
 
-        Pcdes = df_component['Pc (bar)'][0]
+        Pcdes = np.array(df_component['Pc (bar)'])[0]
 
 
     df_des = pd.DataFrame([{
@@ -219,6 +223,8 @@ def PropriedadesDes(names, X):
         'Pc (bar)' : Pcdes,
         'ω' : Wdes
     }])
+
+    print(f"df do DES: {df_des}")
 
     return df_filtrada, df_des
 

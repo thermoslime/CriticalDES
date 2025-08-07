@@ -166,19 +166,14 @@ def sets_inalterar(name1, name2, name3, list_frac):
 
    estados = [False] * 3
 
-   if '/' in nomes:
-      
-      for indice, valor in enumerate(nomes):
-         if nomes[indice] == '/':
-            estados[indice] = True
-            valores[indice] = 0
-         else:
-            pass
+   for indice, valor in enumerate(nomes):
+      if nomes[indice] == '/':
+         estados[indice] = True
+         valores[indice] = 0
+      else:
+         pass
 
-      return estados[0], estados[1], estados[2], valores[0], valores[1], valores[2]
-
-   else:
-      raise PreventUpdate
+   return estados[0], estados[1], estados[2], valores[0], valores[1], valores[2]
 
 
 # Edição link
@@ -200,8 +195,13 @@ def links_dinamic(des_tabel, comp_tabel):
       df_des = pd.DataFrame(des_tabel)
       df_comp = pd.DataFrame(comp_tabel)
 
+      try:
+         count_nulo = df_comp['Abr.'].value_counts()['/']
+      except:
+         count_nulo = 0
+
       # Se houver 2 ou 3 componentes:
-      if df_comp['Abr.'].value_counts()['/'] <= 1:
+      if count_nulo <= 1:
          estilo = {'pointer-events': 'auto'}
          classe = "btn btn-outline-dark btn-lg mx-2"
 
@@ -517,8 +517,13 @@ def obter_dados(n_clicks, name1, name2, name3, fracoes_molares, temperature, tem
 
          df_comp, df_des = PropriedadesDes(names, X)
 
+         try:
+            count_nulo = df_comp['Abr.'].value_counts()['/']
+         except:
+            count_nulo = 0
+
          # Se houver 2 ou 3 componentes:
-         if df_comp['Abr.'].value_counts()['/'] <= 1:
+         if count_nulo <= 1:
 
             dict_comp = df_comp.to_dict('records') # list of dicts
             dict_des = df_des.to_dict('records') # list of dicts
@@ -649,9 +654,13 @@ def mostrar(n_clicks, des_tabel, comp_tabel):
       df_des = pd.DataFrame(des_tabel)
       df_comp = pd.DataFrame(comp_tabel)
 
+      try:
+         count_nulo = df_comp['Abr.'].value_counts()['/']
+      except:
+         count_nulo = 0
 
       # Se houver 2 ou 3 componentes:
-      if df_comp['Abr.'].value_counts()['/'] <= 1:
+      if count_nulo <= 1:
 
          dict_comp = df_comp.to_dict('records') # list of dicts
          dict_des = df_des.to_dict('records') # list of dicts
