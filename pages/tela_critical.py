@@ -19,7 +19,7 @@ layout = dbc.Container([
 
     html.Div(children = [
         html.Br(),
-        html.P('''Enter with temperature, compositions and mole fractions of the DES.''', style={'textAlign': 'left',  "fontSize": "1.5em"}),
+        html.P('''Enter with the DES composition:''', style={'textAlign': 'left',  "fontSize": "1.5em"}),
         html.Br()
     ]),
 
@@ -30,39 +30,6 @@ layout = dbc.Container([
     html.Div(id="dados_interativos", children=[
         
         html.Div([
-
-            # Tabela com temperatura
-            dbc.Table([
-                html.Tbody([
-                    html.Tr([html.Th(''), html.Th('Value', style={'textAlign': 'center', 'width': '60%'}), html.Th('Unit', style={'textAlign': 'center', 'width': '20%'})]),
-
-                    html.Tr([html.Td(html.P('Temperature', style={'textAlign': 'left',  "fontSize": "1.2em"})),
-                             
-                             html.Td([
-                                    dcc.Input(id='Temperature', type='number',  value = 273.15, max = 373.15, min = 273.15, 
-                                            style={'textAlign': 'center', 'width': '100%'},
-                                            persistence = True,  placeholder="273.15 - 373.15", persistence_type = "session")
-                                ]),
-
-                             html.Td([
-                                    dcc.Dropdown(id='TemperatureUnit', options=['K'], value='K',
-                                                multi=False,
-                                                clearable=False,
-                                                disabled= False,
-                                                persistence = True, persistence_type = "session",
-                                                style={'textAlign': 'center', 'width': '100%'})
-                                ]),
-                                ]),
-                ])  # Final do Tbody
-            ], bordered=True),  # Final da tabela
-
-
-            html.Div(children= [
-                html.Br(),
-                html.P('System Composition:', style={'textAlign': 'left',  "fontSize": "1.5em",  'display': 'inline-block'}),
-            ]),
-
-
             # Tabela com os nomes
             dbc.Table([
                 html.Tbody([

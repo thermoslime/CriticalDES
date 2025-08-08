@@ -146,7 +146,6 @@ def PropriedadesDes(names, X):
 
     # Tra
     X = np.array(X)
-    print(f"Na função: {qnt_nulos}")
 
     # Acessando o Dataframe
     df = pd.read_excel(os.path.join(caminho_base, 'Valores.xlsx'))
@@ -187,8 +186,6 @@ def PropriedadesDes(names, X):
 
         df_component = df_filtrada[ df_filtrada['Abr.'] == component[0]]
 
-        print(np.array(df_component['Mw (g/mol)'])[0])
-
         Mdes = np.array(df_component['Mw (g/mol)'])[0]
         
         Vcdes = np.array(df_component['Vc (mL/mol)'])[0]
@@ -223,8 +220,6 @@ def PropriedadesDes(names, X):
         'Pc (bar)' : Pcdes,
         'ω' : Wdes
     }])
-
-    print(f"df do DES: {df_des}")
 
     return df_filtrada, df_des
 

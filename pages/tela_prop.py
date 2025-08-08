@@ -19,7 +19,7 @@ layout = dbc.Container([
 
     html.Div(children = [
 
-        html.Div(id = "DES_Table"),
+        html.Div(id = "DES_Tabela"),
 
         # Itens
         dbc.Accordion([
@@ -172,11 +172,10 @@ layout = dbc.Container([
                     
                     dbc.Row([
                         dbc.Col([
-                            dbc.Button("Viscosity estimation", id='viscosity_button', n_clicks=0, outline=True, color="primary", className="me-1 w-100"), 
+                            dbc.Button("Viscosity estimation", id='viscosity_button', n_clicks=0, outline=True, color="primary", className="me-1 w-100", style={"fontSize": "1.2em"}), 
                             dbc.Tooltip("Estimation of viscosity using reference values", target="viscosity_button")
                         ], width=6),
-                        dbc.Col(
-                            id = 'local_download_visco', width=6)]
+                        ]
                     ),
                     
                     html.Br(),
@@ -189,13 +188,19 @@ layout = dbc.Container([
 
                 ]), style={'width': '100%'}, title = html.H2('Viscosities'), item_id = 'id3'),
 
-
-
         
-        ], always_open= True, flush = False, start_collapsed = False, active_item = ['id0', 'id1', 'id2', 'id3']),
+        ], always_open= True, flush = False, start_collapsed = False, active_item = ['id0',]), # 'id1', 'id2', 'id3'
 
         html.Br(),
-        html.Br()
+
+        html.P("To download all calculated data, click the button below.", style={'text-align': 'justify', "fontSize": "1.2em"}),
+
+        dbc.Button("CSV download", id='button_csv_correlations', n_clicks=0, outline=True, color="primary", className="me-1 w-100", style={"fontSize": "1.2em"}),
+        dbc.Tooltip("Download a CSV with values calculates data", target="button_csv_correlations"),
+        dcc.Download(id="download_Resultados_correlations"),
+
+        html.Br(),
+        html.Br(),
 
     ])
 ])
